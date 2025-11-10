@@ -1,0 +1,311 @@
+<script>
+  // Check if the user has a token. If not, redirect to login.
+  const token = localStorage.getItem('token');
+  if (!token) {
+    window.location.href = 'login.html';
+  }
+</script>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ManKi-Baat | Track Your Clouds</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script src="https://unpkg.com/feather-icons"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            'mint': '#DBF5F0',
+            'lavender': '#E8D7F1',
+            'peach': '#FFE5D4',
+            'sky': '#A5D8FF',
+            'lilac': '#D4BBFC',
+          },
+          fontFamily: {
+            'poppins': ['Poppins', 'sans-serif'],
+          },
+          animation: {
+            'float': 'float 3s ease-in-out infinite',
+            'fadeIn': 'fadeIn 0.5s ease-in',
+          },
+          keyframes: {
+            float: {
+              '0%, 100%': { transform: 'translateY(0)' },
+              '50%': { transform: 'translateY(-10px)' },
+            },
+            fadeIn: {
+              '0%': { opacity: '0' },
+              '100%': { opacity: '1' },
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    html:not(.dark) body {
+      background: linear-gradient(135deg, #DBF5F0 0%, #E8D7F1 50%, #FFE5D4 100%);
+    }
+
+    /* --- MODAL STYLES --- */
+    #editModal.hidden {
+      display: none;
+    }
+
+    #filterPanel {
+      transition: all 0.25s ease;
+    }
+
+    /* --- TOAST ANIMATIONS --- */
+    .toast-slide-in {
+      animation: fadeIn 0.3s ease-out;
+    }
+
+    .toast-slide-out {
+      animation: fadeOut 0.3s ease-in forwards;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    @keyframes fadeOut {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+
+      to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen font-poppins dark:bg-gray-900">
+
+  <div id="toast-container" class="fixed top-5 right-5 z-50 space-y-3 w-64">
+    <!-- Toasts will be added here dynamically -->
+  </div>
+
+  <!-- Navbar -->
+  <nav class="bg-white bg-opacity-70 backdrop-blur-sm px-6 py-4 shadow-sm dark:bg-gray-800 dark:bg-opacity-70">
+    <div class="max-w-6xl mx-auto flex justify-between items-center">
+      <div class="flex items-center">
+        <img src="assets/logo.png" alt="ManKi-Baat Logo" class="h-10 block dark:hidden">
+        <img src="assets/logo_dark.png" alt="ManKi-Baat Logo" class="h-10 hidden dark:block">
+      </div>
+      <div class="hidden md:flex space-x-8 items-center">
+        <button id="theme-toggle-btn" class="text-gray-600 hover:text-lilac dark:text-gray-300 transition-colors">
+          <i data-feather="moon" class="w-5 h-5 hidden" id="theme-icon-light"></i>
+          <i data-feather="sun" class="w-5 h-5 hidden" id="theme-icon-dark"></i>
+        </button>
+        <a href="index.html" class="text-gray-600 hover:text-lilac dark:text-gray-300 transition-colors">Home</a>
+        <a href="stats.html" class="text-gray-600 hover:text-lilac dark:text-gray-300 transition-colors">Stats</a>
+        <a href="about.html" class="text-gray-600 hover:text-lilac dark:text-gray-300 transition-colors">About</a>
+        <a href="#" onclick="logout(event)" class="text-red-400 hover:text-red-500 transition-colors">Logout</a>
+
+      </div>
+      <button class="md:hidden">
+        <i data-feather="menu" class="w-6 h-6 text-gray-600 dark:text-gray-300"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Main Content -->
+  <main class="max-w-4xl mx-auto px-6 py-12">
+    <div class="text-center mb-12 animate-fadeIn">
+      <h2 class="text-3xl font-medium text-gray-700 dark:text-gray-100 mb-2">How are you floating today?</h2>
+      <p class="text-gray-500 dark:text-gray-400">Capture your mood like a passing cloud</p>
+
+    </div>
+
+    <!-- Mood Entry Card -->
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-md mb-12 transition-all duration-300 card-glow">
+      <div class="mb-6">
+        <label class="block text-gray-600 dark:text-gray-300 mb-2">Today's Mood</label>
+        <select id="mood"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-lilac focus:ring-1 focus:ring-lilac outline-none bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+          <option disabled selected>Select a mood</option>
+          <option>☀️ Happy</option>
+          <option>🌧️ Sad</option>
+          <option>⚡ Angry</option>
+          <option>🌤️ Calm</option>
+          <option>🌈 Excited</option>
+          <option>🌫️ Confused</option>
+          <option>🌙 Tired</option>
+        </select>
+
+      </div>
+      <div class="mb-8">
+        <label class="block text-gray-600 dark:text-gray-300 mb-2">What's coloring your sky?</label>
+        <textarea id="note"
+          class="w-full px-4 py-3 rounded-xl border border-gray-200 focus:border-lilac focus:ring-1 focus:ring-lilac outline-none min-h-[120px] dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+          placeholder="What made you feel this way?"></textarea>
+
+      </div>
+      <button class="w-full py-3 bg-lilac text-white rounded-xl hover:bg-opacity-90 transition-colors submit-pulse">Save
+        Mood</button>
+    </div>
+
+    <!-- Mood History -->
+    <div>
+      <h3 class="text-xl font-medium text-gray-700 dark:text-gray-100 mb-6">Your Mood Clouds</h3>
+      <div class="mb-4">
+        <button id="filterToggle" class="px-4 py-2 bg-lilac text-white rounded-xl hover:bg-opacity-90">
+          Filters ▼
+        </button>
+
+        <div id="filterPanel" class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-xl shadow-sm hidden">
+
+          <input type="text" id="searchInput" placeholder="Search your moods..."
+            class="w-full px-4 py-2 border rounded-xl mb-3 outline-none focus:ring-lilac dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+
+          <div class="flex gap-3 mb-3">
+            <!-- Sort Dropdown -->
+            <select id="sortSelect"
+              class="w-1/2 px-4 py-2 border rounded-xl outline-none focus:ring-lilac dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+              <option value="date_desc">Newest First</option>
+              <option value="date_asc">Oldest First</option>
+              <option value="mood_asc">Mood A → Z</option>
+              <option value="mood_desc">Mood Z → A</option>
+            </select>
+
+            <!-- Limit Dropdown -->
+            <select id="limitSelect"
+              class="w-1/2 px-4 py-2 border rounded-xl outline-none focus:ring-lilac dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+              <option value="5">5 per page</option>
+              <option value="10">10 per page</option>
+              <option value="20">20 per page</option>
+            </select>
+          </div>
+
+          <div class="flex gap-3">
+            <input type="date" id="fromDate"
+              class="w-1/2 px-3 py-2 border rounded-xl focus:ring-lilac dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:[color-scheme:dark]">
+            <input type="date" id="toDate"
+              class="w-1/2 px-3 py-2 border rounded-xl focus:ring-lilac dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200 dark:[color-scheme:dark]">
+          </div>
+
+          <button id="clearFilters"
+            class="mt-4 w-full py-2 bg-gray-300 hover:bg-gray-400 text-gray-700 rounded-xl transition dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-100">
+            Reset Filters
+          </button>
+
+        </div>
+      </div>
+
+      <div class="mood-history space-y-4 min-h-[300px] max-h-[400px] overflow-y-auto pr-2 transition-all">
+        <!-- Moods are injected by script.js -->
+      </div>
+
+      <div class="flex justify-between items-center gap-4 mt-4">
+        <button onclick="prevPage()"
+          class="px-4 py-2 bg-lilac text-white rounded-lg hover:bg-opacity-80 transition disabled:opacity-50"
+          id="prevButton">Prev</button>
+        <div class="text-center">
+          <span id="pageNumber" class="text-gray-600 dark:text-gray-300 font-medium"></span>
+          <span id="resultCount" class="text-sm text-gray-500 dark:text-gray-400 block"></span>
+
+        </div>
+        <button onclick="nextPage()"
+          class="px-4 py-2 bg-lilac text-white rounded-lg hover:bg-opacity-80 transition disabled:opacity-50"
+          id="nextButton">Next</button>
+      </div>
+
+
+    </div>
+
+  </main>
+
+  <!-- Edit Mood Modal -->
+  <div id="editModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-40 dark:bg-gray-900 dark:bg-opacity-40 flex justify-center items-center">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-80">
+      <h2 class="text-xl font-semibold mb-4 dark:text-gray-100">Edit Mood</h2>
+      <label for="editMood" class="dark:text-gray-300">Mood:</label>
+      <select id="editMood"
+        class="border p-2 w-full rounded-md mb-3 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200">
+        <option>☀️ Happy</option>
+        <option>🌧️ Sad</option>
+        <option>⚡ Angry</option>
+        <option>🌤️ Calm</option>
+        <option>🌈 Excited</option>
+        <option>🌫️ Confused</option>
+        <option>🌙 Tired</option>
+      </select>
+      <label for="editNote" class="dark:text-gray-300">Note:</label>
+      <textarea id="editNote"
+        class="border p-2 w-full rounded-md mb-4 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"></textarea>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeModal()"
+          class="bg-gray-300 px-3 py-1 rounded-md dark:bg-gray-600 dark:hover:bg-gray-500 dark:text-gray-100">Cancel</button>
+        <button onclick="saveEdit()"
+          class="bg-blue-600 text-white px-3 py-1 rounded-md dark:bg-blue-500 dark:hover:bg-blue-400">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div id="deleteModal"
+    class="hidden fixed inset-0 bg-black bg-opacity-40 dark:bg-gray-900 dark:bg-opacity-40 flex justify-center items-center z-50">
+    <div class="bg-white dark:bg-gray-800 p-6 rounded-xl w-80 shadow-lg">
+      <div class="flex items-center space-x-3 mb-4">
+        <div class="w-10 h-10 rounded-full bg-red-100 dark:bg-red-900 flex items-center justify-center flex-shrink-0">
+          <i data-feather="alert-triangle" class="w-5 h-5 text-red-500"></i>
+        </div>
+        <div>
+          <h2 class="text-xl font-semibold dark:text-gray-100">Delete Mood?</h2>
+        </div>
+      </div>
+      <p class="text-sm text-gray-600 dark:text-gray-300 mb-6">
+        Are you sure you want to permanently delete this mood? This action cannot be undone.
+      </p>
+      <div class="flex justify-end gap-3">
+        <button onclick="closeDeleteModal()"
+          class="px-4 py-2 bg-gray-200 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-gray-100 rounded-lg transition">
+          Cancel
+        </button>
+        <button onclick="confirmDelete()"
+          class="px-4 py-2 bg-red-500 hover:bg-red-600 text-white rounded-lg transition">
+          Delete
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <script src="script.js"></script>
+
+  <script src="theme.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login | ManKi-Baat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class', 
+            theme: {
+                extend: {
+                    colors: {
+                        'mint': '#DBF5F0',
+                        'lavender': '#E8D7F1',
+                        'peach': '#FFE5D4',
+                        'sky': '#A5D8FF',
+                        'lilac': '#D4BBFC',
+                    },
+                    fontFamily: {
+                        'poppins': ['Poppins', 'sans-serif'],
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        html:not(.dark) body {
+            background: linear-gradient(135deg, #DBF5F0 0%, #E8D7F1 50%, #FFE5D4 100%);
+        }
+    </style>
+</head>
+
+<body class="min-h-screen font-poppins flex items-center justify-center dark:bg-gray-900">
+
+    <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl w-full max-w-sm">
+        <div class="text-center mb-6">
+            <i data-feather="cloud" class="text-lilac w-8 h-8 mx-auto mb-2"></i>
+            <h2 id="authTitle" class="text-2xl font-semibold text-gray-700 dark:text-gray-100">Login</h2>
+        </div>
+
+        <div id="message" class="text-sm p-3 mb-4 rounded-md hidden"></div>
+
+        <div>
+            <div class="mb-4">
+                <label for="username" class="block text-gray-600 dark:text-gray-300 mb-2">Username</label>
+                <input type="text" id="username"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-lilac focus:ring-1 focus:ring-lilac outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                    placeholder="Enter your username">
+            </div>
+            <div class="mb-6">
+                <label for="password" class="block text-gray-600 dark:text-gray-300 mb-2">Password</label>
+                <input type="password" id="password"
+                    class="w-full px-4 py-2 rounded-xl border border-gray-200 focus:border-lilac focus:ring-1 focus:ring-lilac outline-none dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                    placeholder="Enter your password">
+            </div>
+
+            <button id="authButton" onclick="handleAuth()"
+                class="w-full py-3 bg-lilac text-white rounded-xl hover:bg-opacity-90 transition-colors">Login</button>
+        </div>
+
+        <p class="text-center mt-6 text-sm text-gray-500 dark:text-gray-400">
+            <span id="toggleText">Don't have an account?</span>
+            <a href="#" onclick="toggleMode(event)" class="text-lilac hover:underline font-medium ml-1">
+                Sign Up
+            </a>
+        </p>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
+    <script src="auth.js"></script>
+    <script src="theme.js"></script>
+</body>
+
+</html>
