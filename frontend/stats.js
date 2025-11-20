@@ -290,7 +290,7 @@ function logout(e) {
         alert("You have been logged out successfully.");
     }
     setTimeout(() => {
-        window.location.href = 'login.html'; 
+        window.location.href = 'about.html'; 
     }, 1500);
 }
 
